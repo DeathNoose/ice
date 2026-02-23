@@ -32,35 +32,4 @@ class Ticket extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    /**
-     * Связь с платежом
-     */
-    public function payment()
-    {
-        return $this->morphOne(Payment::class, 'payable');
-    }
-
-    /**
-     * Проверка, действителен ли билет
-     */
-    public function isValid()
-    {
-        return $this->status === 'paid' && !$this->used_at;
-    }
-
-    /**
-     * Использовать билет
-     */
-    public function use()
-    {
-        if ($this->isValid()) {
-            $this->update([
-                'status' => 'used',
-                'used_at' => now()
-            ]);
-            return true;
-        }
-        return false;
-    }
 }

@@ -9,11 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
-    /**
-     * Конструктор - middleware применяется в маршрутах, а не в контроллере
-     * В Laravel 11 убрали middleware из контроллеров
-     */
-    
     public function edit()
     {
         return view('profile.edit', ['user' => Auth::user()]);
@@ -41,7 +36,6 @@ class ProfileController extends Controller
             'new_password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        // Проверяем текущий пароль
         if (!Hash::check($request->current_password, Auth::user()->password)) {
             return back()->withErrors(['current_password' => 'Текущий пароль указан неверно']);
         }
@@ -51,5 +45,23 @@ class ProfileController extends Controller
         ]);
 
         return back()->with('success', 'Пароль успешно изменен');
+    }
+
+    /**
+     * Показать билеты пользователя
+     */
+    public function tickets()
+    {
+        $tickets = Auth::user()->tickets()->latest()->paginate(10);
+        return view('profile.tickets', compact('tickets'));
+    }
+
+    /**
+     * Показать бронирования пользователя
+     */
+    public function bookings()
+    {
+        $bookings = Auth::user()->bookings()->with('skate')->latest()->paginate(10);
+        return view('profile.bookings', compact('bookings'));
     }
 }

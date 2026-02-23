@@ -41,31 +41,4 @@ class Booking extends Model
     {
         return $this->belongsTo(Skate::class);
     }
-
-    /**
-     * Связь с платежом
-     */
-    public function payment()
-    {
-        return $this->morphOne(Payment::class, 'payable');
-    }
-
-    /**
-     * Получить стоимость аренды коньков
-     */
-    public function getSkatesPriceAttribute()
-    {
-        if ($this->skate) {
-            return $this->skate->price_per_hour * $this->hours;
-        }
-        return 0;
-    }
-
-    /**
-     * Получить стоимость билета
-     */
-    public function getTicketPriceAttribute()
-    {
-        return 300;
-    }
 }

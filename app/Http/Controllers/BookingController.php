@@ -41,6 +41,7 @@ class BookingController extends Controller
         $totalPrice = $ticketPrice + $skatesPrice;
 
         $booking = Booking::create([
+            'user_id' => Auth::id(), // Добавляем user_id
             'full_name' => $validated['full_name'],
             'phone' => $validated['phone'],
             'hours' => $validated['hours'],
@@ -48,7 +49,6 @@ class BookingController extends Controller
             'skate_size' => $request->skate_size ?? null,
             'total_price' => $totalPrice,
             'status' => 'pending',
-            'user_id' => Auth::id(),
         ]);
 
         return redirect()->route('payment.process', ['booking' => $booking->id])

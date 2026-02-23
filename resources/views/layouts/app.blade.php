@@ -1,4 +1,4 @@
-<!-- resources/views/layouts/app.blade.php (обновляем навигацию) -->
+<!-- resources/views/layouts/app.blade.php -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -9,7 +9,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- Font Awesome -->
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts -->
@@ -184,6 +184,22 @@
             justify-content: center;
         }
         
+        /* Badge для уведомлений */
+        .badge-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--soft-blue);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
         .footer {
             background: var(--dark-gray);
             color: white;
@@ -247,6 +263,30 @@
                                             Профиль
                                         </a>
                                     </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('profile.tickets') }}">
+                                            <i class="fas fa-ticket-alt me-2"></i>
+                                            Мои билеты
+                                            @php
+                                                $pendingTickets = Auth::user()->tickets()->where('status', 'pending')->count();
+                                            @endphp
+                                            @if($pendingTickets > 0)
+                                                <span class="badge-count">{{ $pendingTickets }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('profile.bookings') }}">
+                                            <i class="fas fa-calendar-check me-2"></i>
+                                            Мои бронирования
+                                            @php
+                                                $pendingBookings = Auth::user()->bookings()->where('status', 'pending')->count();
+                                            @endphp
+                                            @if($pendingBookings > 0)
+                                                <span class="badge-count">{{ $pendingBookings }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
                                     
                                     @if(Auth::user()->isAdmin())
                                         <li><hr class="dropdown-divider"></li>
@@ -300,8 +340,9 @@
     <main style="margin-top: 80px; min-height: calc(100vh - 400px);">
         @if(session('success'))
             <div class="container mt-3">
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle me-2"></i>
+                <div class="alert alert-success alert-dismissible fade show" role="alert" 
+                     style="background: var(--light-blue); color: var(--dark-gray); border: 1px solid var(--soft-blue); border-radius: 10px;">
+                    <i class="fas fa-check-circle me-2" style="color: var(--soft-blue);"></i>
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -310,7 +351,8 @@
         
         @if(session('error'))
             <div class="container mt-3">
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert" 
+                     style="background: #ffe5e5; color: #d63031; border: 1px solid #ff7675; border-radius: 10px;">
                     <i class="fas fa-exclamation-circle me-2"></i>
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -328,6 +370,11 @@
                 <div class="col-md-4 mb-4">
                     <h5 class="mb-4">Ice Arena</h5>
                     <p>Современный ледовый каток в центре города. Комфорт, безопасность и отличное настроение!</p>
+                    <div class="social-links mt-3">
+                        <a href="#" class="me-2"><i class="fab fa-vk fa-lg"></i></a>
+                        <a href="#" class="me-2"><i class="fab fa-telegram fa-lg"></i></a>
+                        <a href="#" class="me-2"><i class="fab fa-instagram fa-lg"></i></a>
+                    </div>
                 </div>
                 <div class="col-md-4 mb-4">
                     <h5 class="mb-4">Контакты</h5>
@@ -354,17 +401,35 @@
                         <i class="fas fa-clock me-2" style="color: var(--soft-blue);"></i>
                         Сб-Вс: 09:00 - 23:00
                     </p>
+                    <p class="mb-2">
+                        <i class="fas fa-clock me-2" style="color: var(--soft-blue);"></i>
+                        Без выходных
+                    </p>
                 </div>
             </div>
             <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
             <div class="text-center">
-                <p class="mb-0">&copy; 2024 Ice Arena. Все права защищены.</p>
+                <p class="mb-0">&copy; {{ date('Y') }} Ice Arena. Все права защищены.</p>
             </div>
         </div>
     </footer>
 
     <!-- Скрипты -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Автоматическое скрытие alert сообщений через 5 секунд
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.querySelectorAll('.alert').forEach(function(alert) {
+                    alert.classList.remove('show');
+                    setTimeout(function() {
+                        alert.remove();
+                    }, 300);
+                });
+            }, 5000);
+        });
+    </script>
     
     @stack('scripts')
 </body>

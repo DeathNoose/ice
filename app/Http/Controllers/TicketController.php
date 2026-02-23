@@ -22,12 +22,12 @@ class TicketController extends Controller
         ]);
 
         $ticket = Ticket::create([
+            'user_id' => Auth::id(), // Добавляем user_id
             'full_name' => $validated['full_name'],
             'email' => $validated['email'] ?? null,
             'phone' => $validated['phone'],
             'price' => 300,
             'status' => 'pending',
-            'user_id' => Auth::id(),
         ]);
 
         return redirect()->route('payment.process', ['ticket' => $ticket->id])
