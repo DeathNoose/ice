@@ -37,21 +37,21 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     
-    // Ticket routes (требуют авторизации)
+    // Ticket routes
     Route::prefix('ticket')->name('ticket.')->group(function () {
         Route::get('/create', [TicketController::class, 'create'])->name('create');
         Route::post('/store', [TicketController::class, 'store'])->name('store');
         Route::get('/{ticket}', [TicketController::class, 'show'])->name('show');
     });
     
-    // Booking routes (требуют авторизации)
+    // Booking routes
     Route::prefix('booking')->name('booking.')->group(function () {
         Route::get('/skates', [BookingController::class, 'skates'])->name('skates');
         Route::post('/store', [BookingController::class, 'store'])->name('store');
         Route::get('/{booking}', [BookingController::class, 'show'])->name('show');
     });
     
-    // Payment routes (требуют авторизации)
+    // Payment routes
     Route::prefix('payment')->name('payment.')->group(function () {
         Route::get('/process', [PaymentController::class, 'process'])->name('process');
         Route::get('/success', [PaymentController::class, 'success'])->name('success');
@@ -59,10 +59,56 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-// Админ-панель (требует авторизации и прав администратора)
+// Админ-панель
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
     Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    
+    // Skates management
     Route::resource('skates', App\Http\Controllers\Admin\SkateController::class);
-    Route::resource('bookings', App\Http\Controllers\Admin\BookingController::class)->only(['index', 'show', 'destroy']);
-    Route::resource('tickets', App\Http\Controllers\Admin\TicketController::class)->only(['index', 'show', 'destroy']);
+    
+    // Bookings management
+    Route::prefix('bookings')->name('bookings.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\BookingController::class, 'index'])->name('index');
+        Route::get('/{booking}', [App\Http\Controllers\Admin\BookingController::class, 'show'])->name('show');
+        Route::put('/{booking}/status', [App\Http\Controllers\Admin\BookingController::class, 'updateStatus'])->name('update-status');
+        Route::delete('/{booking}', [App\Http\Controllers\Admin\BookingController::class, 'destroy'])->name('destroy');
+    });
+    
+    // Tickets management
+    Route::prefix('tickets')->name('tickets.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\TicketController::class, 'index'])->name('index');
+        Route::get('/{ticket}', [App\Http\Controllers\Admin\TicketController::class, 'show'])->name('show');
+        Route::put('/{ticket}/status', [App\Http\Controllers\Admin\TicketController::class, 'updateStatus'])->name('update-status');
+        Route::delete('/{ticket}', [App\Http\Controllers\Admin\TicketController::class, 'destroy'])->name('destroy');
+    });
+// routes/web.php - обновляем секцию админ-панели
+
+// Админ-панель
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    
+    // Skates management (resource уже включает все методы)
+    Route::resource('skates', App\Http\Controllers\Admin\SkateController::class);
+    
+    // Bookings management
+    Route::prefix('bookings')->name('bookings.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\BookingController::class, 'index'])->name('index');
+        Route::get('/{booking}', [App\Http\Controllers\Admin\BookingController::class, 'show'])->name('show');
+        Route::put('/{booking}/status', [App\Http\Controllers\Admin\BookingController::class, 'updateStatus'])->name('update-status');
+        Route::delete('/{booking}', [App\Http\Controllers\Admin\BookingController::class, 'destroy'])->name('destroy');
+    });
+    
+    // Tickets management
+    Route::prefix('tickets')->name('tickets.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\TicketController::class, 'index'])->name('index');
+        Route::get('/{ticket}', [App\Http\Controllers\Admin\TicketController::class, 'show'])->name('show');
+        Route::put('/{ticket}/status', [App\Http\Controllers\Admin\TicketController::class, 'updateStatus'])->name('update-status');
+        Route::delete('/{ticket}', [App\Http\Controllers\Admin\TicketController::class, 'destroy'])->name('destroy');
+        
+        // Добавляем поддержку POST для тех случаев, когда форма не поддерживает PUT
+        Route::post('/{ticket}/status', [App\Http\Controllers\Admin\TicketController::class, 'updateStatus'])->name('update-status-post');
+    });
+});
 });

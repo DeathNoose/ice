@@ -57,7 +57,7 @@
                         <td>
                             <div class="d-flex gap-2">
                                 <a href="{{ route('admin.tickets.show', $ticket) }}" class="btn btn-sm" 
-                                   style="background: #D6E4F0; color: #3A3A3A; border-radius: 8px; padding: 5px 10px;">
+                                   style="background: #D6E4F0; color: #3A3A3A; border-radius: 8px; padding: 5px 10px; transition: all 0.3s;">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 
@@ -65,7 +65,7 @@
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm" 
-                                            style="background: #ffe5e5; color: #d63031; border-radius: 8px; padding: 5px 10px;">
+                                            style="background: #ffe5e5; color: #d63031; border-radius: 8px; padding: 5px 10px; transition: all 0.3s;">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
@@ -134,5 +134,54 @@
         searchInput.addEventListener('keyup', filterTable);
     });
 </script>
+@endpush
+
+@push('styles')
+<style>
+    .badge-pending, .badge-paid, .badge-used {
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: 500;
+        display: inline-block;
+    }
+    .badge-pending {
+        background: #D6E4F0;
+        color: #3A3A3A;
+    }
+    .badge-paid {
+        background: #A2C0D4;
+        color: white;
+    }
+    .badge-used {
+        background: #cce5ff;
+        color: #004085;
+    }
+    .pagination {
+        gap: 5px;
+    }
+    .page-link {
+        border: 1px solid #D6E4F0;
+        color: #3A3A3A;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+    .page-link:hover {
+        background: #A2C0D4;
+        color: white;
+        border-color: #A2C0D4;
+    }
+    .page-item.active .page-link {
+        background: #A2C0D4;
+        border-color: #A2C0D4;
+        color: white;
+    }
+    .btn-sm {
+        transition: all 0.3s;
+    }
+    .btn-sm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(162,192,212,0.3);
+    }
+</style>
 @endpush
 @endsection

@@ -10,14 +10,14 @@ class BookingController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Booking::with('skate');
+        $query = Booking::with(['user', 'skate']); // Загружаем связи
 
         // Фильтрация по статусу
         if ($request->has('status') && $request->status != '') {
             $query->where('status', $request->status);
         }
 
-        // Поиск по имени или телефону
+        // Поиск
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -34,7 +34,7 @@ class BookingController extends Controller
 
     public function show(Booking $booking)
     {
-        $booking->load('skate');
+        $booking->load(['user', 'skate']); // Загружаем связи
         return view('admin.bookings.show', compact('booking'));
     }
 
@@ -46,7 +46,7 @@ class BookingController extends Controller
 
         $booking->update(['status' => $request->status]);
 
-        return redirect()->back()->with('success', 'Статус бронирования обновлен');
+        return redirect()->back()->with('success', 'Статус бронирования успешно обновлен');
     }
 
     public function destroy(Booking $booking)
@@ -54,6 +54,6 @@ class BookingController extends Controller
         $booking->delete();
 
         return redirect()->route('admin.bookings.index')
-            ->with('success', 'Бронирование удалено');
+            ->with('success', 'Бронирование успешно удалено');
     }
 }

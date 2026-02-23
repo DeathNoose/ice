@@ -8,16 +8,19 @@ use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
+    /**
+     * Display a listing of the tickets.
+     */
     public function index(Request $request)
     {
-        $query = Ticket::query();
+        $query = Ticket::with('user');
 
-        // Фильтрация по статусу
+        // Filter by status
         if ($request->has('status') && $request->status != '') {
             $query->where('status', $request->status);
         }
 
-        // Поиск по имени или телефону
+        // Search
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -33,11 +36,18 @@ class TicketController extends Controller
         return view('admin.tickets.index', compact('tickets'));
     }
 
+    /**
+     * Display the specified ticket.
+     */
     public function show(Ticket $ticket)
     {
+        $ticket->load('user');
         return view('admin.tickets.show', compact('ticket'));
     }
 
+    /**
+     * Update the specified ticket's status.
+     */
     public function updateStatus(Request $request, Ticket $ticket)
     {
         $request->validate([
@@ -46,20 +56,23 @@ class TicketController extends Controller
 
         $data = ['status' => $request->status];
         
-        if ($request->status === 'used') {
+        if ($request->status === 'used' && $ticket->status !== 'used') {
             $data['used_at'] = now();
         }
 
         $ticket->update($data);
 
-        return redirect()->back()->with('success', 'Статус билета обновлен');
+        return redirect()->back()->with('success', 'Статус билета успешно обновлен');
     }
 
+    /**
+     * Remove the specified ticket.
+     */
     public function destroy(Ticket $ticket)
     {
         $ticket->delete();
 
         return redirect()->route('admin.tickets.index')
-            ->with('success', 'Билет удален');
+            ->with('success', 'Билет успешно удален');
     }
 }

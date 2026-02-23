@@ -68,6 +68,7 @@
                         <td style="color: #3A3A3A;">{{ $booking->created_at->format('d.m.Y H:i') }}</td>
                         <td>
                             <div class="d-flex gap-2">
+                                <!-- Кнопка просмотра -->
                                 <a href="{{ route('admin.bookings.show', $booking) }}" class="btn btn-sm" 
                                    style="background: #D6E4F0; color: #3A3A3A; border-radius: 8px; padding: 5px 10px; transition: all 0.3s;">
                                     <i class="fas fa-eye"></i>
@@ -81,10 +82,12 @@
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 
-                                <form action="{{ route('admin.bookings.destroy', $booking) }}" method="POST" onsubmit="return confirm('Вы уверены, что хотите удалить это бронирование?');">
+                                <!-- Форма удаления -->
+                                <form action="{{ route('admin.bookings.destroy', $booking) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm" 
+                                            onclick="return confirm('Вы уверены, что хотите удалить это бронирование?')"
                                             style="background: #ffe5e5; color: #d63031; border-radius: 8px; padding: 5px 10px; transition: all 0.3s;">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -92,44 +95,60 @@
                             </div>
                             
                             <!-- Modal для изменения статуса -->
-                            <div class="modal fade" id="statusModal{{ $booking->id }}" tabindex="-1">
+                            <div class="modal fade" id="statusModal{{ $booking->id }}" tabindex="-1" aria-labelledby="statusModalLabel{{ $booking->id }}" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content" style="border-radius: 20px; border: none;">
                                         <div class="modal-header" style="background: #A2C0D4; color: white; border-radius: 20px 20px 0 0;">
-                                            <h5 class="modal-title">Изменить статус бронирования #{{ $booking->id }}</h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            <h5 class="modal-title" id="statusModalLabel{{ $booking->id }}">
+                                                <i class="fas fa-edit me-2"></i>
+                                                Изменить статус бронирования #{{ $booking->id }}
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <form action="{{ route('admin.bookings.update-status', $booking) }}" method="POST">
                                             @csrf
                                             @method('PUT')
                                             <div class="modal-body p-4">
-                                                <div class="mb-3">
-                                                    <label class="form-label" style="color: #3A3A3A;">Текущий статус:</label>
-                                                    <p>
+                                                <div class="mb-4">
+                                                    <label class="form-label" style="color: #3A3A3A; font-weight: 500;">Текущий статус:</label>
+                                                    <div>
                                                         @if($booking->status == 'pending')
-                                                            <span class="badge-pending">Ожидание</span>
+                                                            <span class="badge-pending" style="padding: 8px 15px;">Ожидание</span>
                                                         @elseif($booking->status == 'paid')
-                                                            <span class="badge-paid">Оплачено</span>
+                                                            <span class="badge-paid" style="padding: 8px 15px;">Оплачено</span>
                                                         @else
-                                                            <span class="badge-cancelled">Отменено</span>
+                                                            <span class="badge-cancelled" style="padding: 8px 15px;">Отменено</span>
                                                         @endif
-                                                    </p>
+                                                    </div>
                                                 </div>
+                                                
                                                 <div class="mb-3">
-                                                    <label for="status" class="form-label" style="color: #3A3A3A;">Новый статус</label>
-                                                    <select class="form-select" name="status" required
-                                                            style="border: 2px solid #D6E4F0; border-radius: 10px; padding: 10px;">
+                                                    <label for="status" class="form-label" style="color: #3A3A3A; font-weight: 500;">Новый статус</label>
+                                                    <select class="form-select" id="status" name="status" required
+                                                            style="border: 2px solid #D6E4F0; border-radius: 10px; padding: 12px;">
                                                         <option value="pending">Ожидание</option>
                                                         <option value="paid">Оплачено</option>
                                                         <option value="cancelled">Отменено</option>
                                                     </select>
                                                 </div>
+                                                
+                                                @if($booking->payment_id)
+                                                <div class="alert" style="background: #D6E4F0; border: none; border-radius: 10px;">
+                                                    <small>
+                                                        <i class="fas fa-info-circle me-1" style="color: #A2C0D4;"></i>
+                                                        ID платежа: {{ $booking->payment_id }}
+                                                    </small>
+                                                </div>
+                                                @endif
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn" data-bs-dismiss="modal" 
                                                         style="background: #D6E4F0; color: #3A3A3A; border-radius: 10px; padding: 8px 20px;">Отмена</button>
                                                 <button type="submit" class="btn" 
-                                                        style="background: #A2C0D4; color: white; border-radius: 10px; padding: 8px 20px;">Сохранить</button>
+                                                        style="background: #A2C0D4; color: white; border-radius: 10px; padding: 8px 20px;">
+                                                    <i class="fas fa-save me-2"></i>
+                                                    Сохранить изменения
+                                                </button>
                                             </div>
                                         </form>
                                     </div>
@@ -205,6 +224,33 @@
 
 @push('styles')
 <style>
+    .badge-pending {
+        background: #D6E4F0;
+        color: #3A3A3A;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: 500;
+        display: inline-block;
+    }
+    
+    .badge-paid {
+        background: #A2C0D4;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: 500;
+        display: inline-block;
+    }
+    
+    .badge-cancelled {
+        background: #ffe5e5;
+        color: #d63031;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: 500;
+        display: inline-block;
+    }
+    
     .pagination {
         gap: 5px;
     }
@@ -230,6 +276,15 @@
     .btn-sm:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 10px rgba(162,192,212,0.3);
+    }
+    .modal-content {
+        border: none;
+    }
+    .modal-header {
+        border-bottom: none;
+    }
+    .modal-footer {
+        border-top: 1px solid #D6E4F0;
     }
 </style>
 @endpush

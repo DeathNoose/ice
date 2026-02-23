@@ -32,18 +32,35 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Проверка, является ли пользователь администратором
+     */
     public function isAdmin(): bool
     {
         return $this->is_admin || $this->email === 'admin@admin.com';
     }
 
+    /**
+     * Связь с бронированиями
+     */
     public function bookings()
     {
         return $this->hasMany(Booking::class);
     }
 
+    /**
+     * Связь с билетами
+     */
     public function tickets()
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    /**
+     * Получить полное имя
+     */
+    public function getFullNameAttribute()
+    {
+        return $this->name;
     }
 }

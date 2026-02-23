@@ -10,6 +10,7 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'full_name',
         'phone',
         'hours',
@@ -25,13 +26,46 @@ class Booking extends Model
         'total_price' => 'decimal:2'
     ];
 
+    /**
+     * Связь с пользователем
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Связь с коньками
+     */
     public function skate()
     {
         return $this->belongsTo(Skate::class);
     }
 
+    /**
+     * Связь с платежом
+     */
     public function payment()
     {
         return $this->morphOne(Payment::class, 'payable');
+    }
+
+    /**
+     * Получить стоимость аренды коньков
+     */
+    public function getSkatesPriceAttribute()
+    {
+        if ($this->skate) {
+            return $this->skate->price_per_hour * $this->hours;
+        }
+        return 0;
+    }
+
+    /**
+     * Получить стоимость билета
+     */
+    public function getTicketPriceAttribute()
+    {
+        return 300;
     }
 }
