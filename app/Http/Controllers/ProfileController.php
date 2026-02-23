@@ -2,6 +2,7 @@
 // app/Http/Controllers/ProfileController.php
 namespace App\Http\Controllers;
 
+use App\Rules\CurrentPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -35,13 +36,18 @@ class ProfileController extends Controller
 
     public function updatePassword(Request $request)
     {
-        $validated = $request->validate([
-            'current_password' => ['required', 'current_password'],
+        $request->validate([
+            'current_password' => ['required', 'string'],
             'new_password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
+        // Проверяем текущий пароль
+        if (!Hash::check($request->current_password, auth()->user()->password)) {
+            return back()->withErrors(['current_password' => 'Текущий пароль указан неверно']);
+        }
+
         auth()->user()->update([
-            'password' => Hash::make($validated['new_password'])
+            'password' => Hash::make($request->new_password)
         ]);
 
         return back()->with('success', 'Пароль успешно изменен');

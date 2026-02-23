@@ -66,7 +66,12 @@ class BookingController extends Controller
      * Показать информацию о бронировании
      */
     public function show(Booking $booking)
-    {
-        return view('booking.show', compact('booking'));
+{
+    // Проверяем, что пользователь имеет доступ к этому бронированию
+    if (auth()->id() !== $booking->user_id && !auth()->user()->isAdmin()) {
+        abort(403);
     }
+    
+    return view('booking.show', compact('booking'));
+}
 }
