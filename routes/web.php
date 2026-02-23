@@ -36,31 +36,31 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    
+    // Ticket routes (требуют авторизации)
+    Route::prefix('ticket')->name('ticket.')->group(function () {
+        Route::get('/create', [TicketController::class, 'create'])->name('create');
+        Route::post('/store', [TicketController::class, 'store'])->name('store');
+        Route::get('/{ticket}', [TicketController::class, 'show'])->name('show');
+    });
+    
+    // Booking routes (требуют авторизации)
+    Route::prefix('booking')->name('booking.')->group(function () {
+        Route::get('/skates', [BookingController::class, 'skates'])->name('skates');
+        Route::post('/store', [BookingController::class, 'store'])->name('store');
+        Route::get('/{booking}', [BookingController::class, 'show'])->name('show');
+    });
+    
+    // Payment routes (требуют авторизации)
+    Route::prefix('payment')->name('payment.')->group(function () {
+        Route::get('/process', [PaymentController::class, 'process'])->name('process');
+        Route::get('/success', [PaymentController::class, 'success'])->name('success');
+        Route::get('/fail', [PaymentController::class, 'fail'])->name('fail');
+    });
 });
 
-// Маршруты для билетов
-Route::prefix('ticket')->name('ticket.')->group(function () {
-    Route::get('/create', [TicketController::class, 'create'])->name('create');
-    Route::post('/store', [TicketController::class, 'store'])->name('store');
-    Route::get('/{ticket}', [TicketController::class, 'show'])->name('show');
-});
-
-// Маршруты для бронирования
-Route::prefix('booking')->name('booking.')->group(function () {
-    Route::get('/skates', [BookingController::class, 'skates'])->name('skates');
-    Route::post('/store', [BookingController::class, 'store'])->name('store');
-    Route::get('/{booking}', [BookingController::class, 'show'])->name('show');
-});
-
-// Маршруты для оплаты
-Route::prefix('payment')->name('payment.')->group(function () {
-    Route::get('/process', [PaymentController::class, 'process'])->name('process');
-    Route::get('/success', [PaymentController::class, 'success'])->name('success');
-    Route::get('/fail', [PaymentController::class, 'fail'])->name('fail');
-});
-
-// Админ-панель
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+// Админ-панель (требует авторизации и прав администратора)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::resource('skates', App\Http\Controllers\Admin\SkateController::class);
     Route::resource('bookings', App\Http\Controllers\Admin\BookingController::class)->only(['index', 'show', 'destroy']);

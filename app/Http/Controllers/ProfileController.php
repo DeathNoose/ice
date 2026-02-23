@@ -2,26 +2,26 @@
 // app/Http/Controllers/ProfileController.php
 namespace App\Http\Controllers;
 
-use App\Rules\CurrentPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
+    /**
+     * Конструктор - middleware применяется в маршрутах, а не в контроллере
+     * В Laravel 11 убрали middleware из контроллеров
+     */
+    
     public function edit()
     {
-        return view('profile.edit', ['user' => auth()->user()]);
+        return view('profile.edit', ['user' => Auth::user()]);
     }
 
     public function update(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -42,11 +42,11 @@ class ProfileController extends Controller
         ]);
 
         // Проверяем текущий пароль
-        if (!Hash::check($request->current_password, auth()->user()->password)) {
+        if (!Hash::check($request->current_password, Auth::user()->password)) {
             return back()->withErrors(['current_password' => 'Текущий пароль указан неверно']);
         }
 
-        auth()->user()->update([
+        Auth::user()->update([
             'password' => Hash::make($request->new_password)
         ]);
 

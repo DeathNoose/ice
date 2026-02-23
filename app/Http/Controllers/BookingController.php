@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
-    /**
-     * Показать форму бронирования коньков
-     */
     public function skates()
     {
         $skates = Skate::where('is_available', true)
@@ -21,9 +18,6 @@ class BookingController extends Controller
         return view('booking.skates', compact('skates'));
     }
 
-    /**
-     * Сохранить бронирование
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -57,21 +51,18 @@ class BookingController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        // Здесь будет редирект на оплату
         return redirect()->route('payment.process', ['booking' => $booking->id])
             ->with('success', 'Бронирование создано. Перейдите к оплате.');
     }
 
-    /**
-     * Показать информацию о бронировании
-     */
     public function show(Booking $booking)
-{
-    // Проверяем, что пользователь имеет доступ к этому бронированию
-    if (auth()->id() !== $booking->user_id && !auth()->user()->isAdmin()) {
-        abort(403);
+    {
+        // Проверяем доступ
+        if (Auth::id() !== $booking->user_id && !Auth::user()?->isAdmin()) {
+            abort(403);
+        }
+        
+        $booking->load('skate');
+        return view('booking.show', compact('booking'));
     }
-    
-    return view('booking.show', compact('booking'));
-}
 }

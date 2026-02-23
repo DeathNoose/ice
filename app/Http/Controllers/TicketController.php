@@ -8,17 +8,11 @@ use Illuminate\Support\Facades\Auth;
 
 class TicketController extends Controller
 {
-    /**
-     * Показать форму покупки билета
-     */
     public function create()
     {
         return view('ticket.create');
     }
 
-    /**
-     * Сохранить билет
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -36,16 +30,17 @@ class TicketController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        // Здесь будет редирект на оплату
         return redirect()->route('payment.process', ['ticket' => $ticket->id])
             ->with('success', 'Билет создан. Перейдите к оплате.');
     }
 
-    /**
-     * Показать информацию о билете
-     */
     public function show(Ticket $ticket)
     {
+        // Проверяем доступ
+        if (Auth::id() !== $ticket->user_id && !Auth::user()?->isAdmin()) {
+            abort(403);
+        }
+        
         return view('ticket.show', compact('ticket'));
     }
 }
