@@ -17,7 +17,7 @@
                 </p>
             </div>
             <div class="col-lg-6">
-                <img src="https://via.placeholder.com/600x400/A2C0D4/FFFFFF?text=Schedule" 
+ <img src="https://avatars.mds.yandex.net/i?id=315bbb66cb653ec6c85e5130f85ba7f0_l-3675323-images-thumbs&n=13" 
                      alt="Schedule" class="img-fluid rounded-4 shadow-lg">
             </div>
         </div>
