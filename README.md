@@ -8,6 +8,15 @@
 - Адаптивный дизайн** для всех устройств
 - Валидация форм** и маска для телефона
 
+cp .env.example .env
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=ice
+DB_USERNAME=root
+DB_PASSWORD=
+
 php artisan key:generate
 php artisan migrate
 php artisan db:seed
